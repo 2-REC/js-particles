@@ -1,0 +1,28 @@
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#area {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    background-color: black;
+}
+
+#particles_counter {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+    color: white;
+    opacity: 50%;
+}
+
+#particles_button {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+}
