@@ -10,7 +10,8 @@ Particles experimentations in JS.
     * [ ] Repulse ON/OFF
     * [ ] Attract(+"swallow")/repulse
     * [ ] Radius of action
-    * [ ] Size of "mouse ball"
+    * [ ] "mouse ball" size
+    * [ ] Particles size
     * [ ] Draw lines ON/OFF
     * [ ] Colors
         * [ ] Balls
