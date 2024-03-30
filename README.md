@@ -5,6 +5,8 @@ Particles experimentations in JS.
 
 # TODO
 
+* [ ] Separate update from draw...
+
 * [ ] Add+handle options
     * [ ] Number of particles
     * [ ] Repulse ON/OFF
