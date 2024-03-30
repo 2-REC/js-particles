@@ -4,7 +4,7 @@ body {
     padding: 0;
 }
 
-#area {
+#container {
     position: absolute;
     width: 100%;
     height: 100%;
