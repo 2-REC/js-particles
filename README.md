@@ -2,6 +2,8 @@
 
 Particles experimentations in JS.
 
+[Try it out!](https://2-rec.github.io/js-particles/)
+
 
 # TODO
 
@@ -22,6 +24,7 @@ Particles experimentations in JS.
         * [ ] Background
         * [ ] ~explosions
     * [ ] ...?
+
 * [ ] Add UI to control options
     * [ ] Use React?
     * [ ] Collapsable
@@ -29,4 +32,5 @@ Particles experimentations in JS.
     * [ ] Live updates
     * [ ] Opened by left-click? Right-click?
     * [ ] "Close" button
-* [ ] "Publish" on git pages
+
+* [x] "Publish" on git pages
