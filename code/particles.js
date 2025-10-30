@@ -1,118 +1,156 @@
-
-const container = document.getElementById('container');
-const canvas = document.getElementById('particles_canvas');
-const counter = document.getElementById('particles_counter');
-const button = document.getElementById('particles_button');
-
-const canvas_context = canvas.getContext('2d');
+// TODO: outer/main stuff...
+//const main_container = document.getElementById("services_foreground");
+const container = document.getElementById("container");
+const canvas = document.getElementById("particles_canvas");
+const counter = document.getElementById("particles_counter");
+const button = document.getElementById("particles_button");
 const button_display = button.style.display;
 
-var canvas_width = parseInt(canvas.getAttribute('width'));
-var canvas_height = parseInt(canvas.getAttribute('height'));
+const canvas_context = canvas.getContext("2d");
 
 const PI_2 = Math.PI * 2;
 
+// TODO: make variables if editable via UI...
+// => unless find a way to reload JS by 'injecting' const values?
 const PARTICLE_COUNT = 4000;
+// TODO: handle different radii?
 const PARTICLE_RADIUS = 2;
 const PARTICLE_PHASE = 0.03;
+
+const PARTICLE_MIN_SPEED = 0.1; // >0!
 const PARTICLE_MAX_SPEED = 0.5;
-const PARTICLE_LIFESPAN = 5;
-/* TODO: Could be added to each particle to have changing colors */
-var PARTICLE_COLOR = {
+const PARTICLE_LIFESPAN = 5; // time of death
+
+const PARTICLES_RESPAWN = false; // dead particles reappear
+
+const MOUSE_FORCE = 1;
+const FORCE_RADIUS = 100;
+const FORCE_INCREASE = false;
+
+const CONTACT_RADIUS = 25;
+
+const MOUSE_PARTICLE = false; // draw mouse particle
+const DRAW_LINES = true;
+
+// TODO: Could be a particle variable to have changing colors
+// TODO: change to simple triplet instead of r,g,b
+const PARTICLE_COLOR = {
     r: 207,
     g: 255,
     b: 4
 };
 /* TODO: changes anything performance wise? (don't use if want changing colors) */
-const PARTICLE_RGB_STR = PARTICLE_COLOR.r + ',' + PARTICLE_COLOR.g + ',' + PARTICLE_COLOR.b;
+const PARTICLE_RGB_STR = `${PARTICLE_COLOR.r},${PARTICLE_COLOR.g},${PARTICLE_COLOR.b}`;
+const DEAD_PARTICLE_COLOR = {
+    r: 255,
+    g: 255,
+    b: 255
+};
 
 const LINE_WIDTH = 0.8;
 
-const FORCE_RADIUS = 100;
-const SQR_FORCE_RADIUS = FORCE_RADIUS * FORCE_RADIUS;
 
-const CONTACT_RADIUS = 25;
+const SQR_FORCE_RADIUS = FORCE_RADIUS * FORCE_RADIUS;
 const SQR_CONTACT_RADIUS = CONTACT_RADIUS * CONTACT_RADIUS;
 
-var outside_right = canvas_width + PARTICLE_RADIUS;
-var outside_top = canvas_height + PARTICLE_RADIUS;
-
-
-function getRandomNumber(max){
-    /* cast to int isn't necessary */
-    return (Math.random() * max);
+// closer => faster
+function ParticleSpeedIncrease(sqr_distance) {
+    // +0.1 to avoid standing still when at full distance
+    return Math.sqrt((SQR_FORCE_RADIUS - sqr_distance)) / FORCE_RADIUS + 0.1;
 }
 
+// further => faster
+function ParticleSpeedDecrease(sqr_distance) {
+    return Math.sqrt(sqr_distance) / FORCE_RADIUS;
+}
+
+const ParticleSpeed = (FORCE_INCREASE) ? ParticleSpeedIncrease : ParticleSpeedDecrease;
+
+
+/* TODO: use closures to fix min, max or both numbers (as constants) */
+/* TODO: rename to 'getRandomNumber' */
 function getRandomRangeNumber(min, max) {
     return ((Math.random() * (max - min)) + min);
 }
 
-/* TODO: can have null speeds... */
 function getRandomSpeed() {
+    const x_sign = Math.random() < 0.5 ? -1 : 1;
+    const y_sign = Math.random() < 0.5 ? -1 : 1;
     return [
-        getRandomRangeNumber(-PARTICLE_MAX_SPEED, PARTICLE_MAX_SPEED),
-        getRandomRangeNumber(-PARTICLE_MAX_SPEED, PARTICLE_MAX_SPEED)
+        getRandomRangeNumber(PARTICLE_MIN_SPEED, PARTICLE_MAX_SPEED) * x_sign,
+        getRandomRangeNumber(PARTICLE_MIN_SPEED, PARTICLE_MAX_SPEED) * y_sign
     ];
 }
 
+/* TODO: replace 'PARTICLE_RADIUS' by other constant 'OUTBOUND' or something... */
 function isOutside(particle) {
-    return (particle.x < -50
-            || particle.x > outside_right
-            || particle.y < -50
-            || particle.y > outside_top)
+    return (
+        particle.x < -PARTICLE_RADIUS
+        || particle.x > outside_right
+        || particle.y < -PARTICLE_RADIUS
+        || particle.y > outside_top
+    )
 }
 
-function getDistance(p1, p2){
-    const delta_x = Math.abs(p1.x - p2.x);
-    const delta_y = Math.abs(p1.y - p2.y);
+function getDistance(point1, point2){
+    const delta_x = Math.abs(point1.x - point2.x);
+    const delta_y = Math.abs(point1.y - point2.y);
 
     /* avoid 'sqrt' for performance */
     return (delta_x * delta_x + delta_y * delta_y);
 }
 
+/* TODO: add speeds as parameters? */
 function newParticle(x, y) {
-    if (x === undefined) {
-        x = getRandomNumber(canvas_width);
-    }
-    if (y === undefined) {
-        y = getRandomNumber(canvas_height);
-    }
+    const x_position = (x === undefined) ? (Math.random() * canvas_width) : x;
+    const y_position = (y === undefined) ? (Math.random() * canvas_height) : y;
     const speed = getRandomSpeed();
 
     return {
-        x: x,
-        y: y,
+        x: x_position,
+        y: y_position,
         vx: speed[0],
         vy: speed[1],
+        //r: PARTICLE_RADIUS,
         alpha: 1,
-        phase: getRandomRangeNumber(0, 10)
-    }
+        phase: Math.random() * 10
+    };
 }
 
-/* TODO: return at end of function + handle default case (?) */
-function newSideParticle(){
-    const pos = Math.floor(getRandomRangeNumber(0, 4));
-    switch(pos){
+function newSideParticle() {
+    let x = undefined;
+    let y = undefined;
+
+    const side = Math.floor(Math.random() * 4);
+    switch(side){
         case 0: // top
-            return newParticle(undefined, -PARTICLE_RADIUS);
+            y = -PARTICLE_RADIUS;
+            break;
         case 1: // right
-            return newParticle(canvas_width + PARTICLE_RADIUS, undefined);
+            x = canvas_width + PARTICLE_RADIUS;
+            break;
         case 2: // bottom
-            return newParticle(undefined, canvas_height + PARTICLE_RADIUS);
+            y = canvas_height + PARTICLE_RADIUS;
+            break;
         case 3: // left
-            return newParticle(-PARTICLE_RADIUS, undefined);
+            x = -PARTICLE_RADIUS;
+            break;
     }
+
+    return newParticle(x, y);
 }
 
-/* recreate 'missing' particles */
-function addParticles(){
-    while(particles.length < nb_particles){
+// recreate 'missing' particles
+function addParticles() {
+    while (particles.length < nb_particles) {
+//        particles.push(newParticle());
         particles.push(newSideParticle());
     }
 }
 
 function updateParticles() {
     line_particles.length = 0;
+// TODO: use foreach (BUT fix order issue... start from end??)
     for (var i = particles.length-1; i >= 0; --i) {
         const b = particles[i];
         b.x += b.vx;
@@ -127,21 +165,36 @@ function updateParticles() {
         /* TODO: better to make separate loop only if 'mouse_in'? */
         if (mouse_in) {
             /* TODO: optimise with kind of BSP tree? */
-            const distance = getDistance(b, mouse_particle);
-            if (distance < SQR_CONTACT_RADIUS) {
+            const sqr_distance = getDistance(b, mouse_particle);
+            if (sqr_distance < SQR_CONTACT_RADIUS) {
                 /* TODO: make separate function */
                 particles[i] = particles[particles.length - 1];
                 particles.pop();
-                --nb_particles;
+                if (!PARTICLES_RESPAWN) {
+                    --nb_particles;
+                }
 
                 b.life = PARTICLE_LIFESPAN;
                 dead_particles.push(b);
 
-            } else if (distance < SQR_FORCE_RADIUS) {
-                /* TODO: make better formula... */
-                b.vx = (mouse_particle.x - b.x) / 100.0;
-                b.vy = (mouse_particle.y - b.y) / 100.0;
-                line_particles.push([b, distance]);
+            } else if (sqr_distance < SQR_FORCE_RADIUS) {
+                if (MOUSE_FORCE) {
+                    const speed = ParticleSpeed(sqr_distance);
+
+                    const deltaX = mouse_particle.x - b.x;
+                    const deltaY = mouse_particle.y - b.y;
+
+                    const magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    if (magnitude === 0) {
+                        b.vx = 0;
+                        b.vy = 0;
+                    } else {
+                        b.vx = MOUSE_FORCE * (deltaX / magnitude) * speed;
+                        b.vy = MOUSE_FORCE * (deltaY / magnitude) * speed;
+                    }
+                }
+
+                line_particles.push([b, sqr_distance]);
             }
         }
 
@@ -150,7 +203,7 @@ function updateParticles() {
         b.alpha = Math.abs(Math.cos(b.phase));
     }
 
-    /* TODO: make function */
+    /* TODO: make function? */
     for (var i = dead_particles.length-1; i >= 0; --i) {
         const b = dead_particles[i];
         --b.life;
@@ -161,48 +214,44 @@ function updateParticles() {
     }
 }
 
-
 function drawParticles() {
-    counter.innerHTML = nb_particles;
+    /* TODO: move elsewhere! */
+    /* TODO: remove hardcoded '2' => get nb digits at init */
+    counter.innerHTML = String(nb_particles).padStart(2, "0");
+
     if (nb_particles == 0) {
         button.style.display = button_display;
+// TODO: handle outer container/events stuff...
+        //main_container.style.pointerEvents = "none";
+// TODO: return?
     }
 
-    for (let i = 0; i < particles.length; ++i) {
-        const b = particles[i];
-/*
-        canvas_context.fillStyle = 'rgba(' + PARTICLE_COLOR.r + ','
-                                           + PARTICLE_COLOR.g + ','
-                                           + PARTICLE_COLOR.b + ','
-                                           + b.alpha + ')';
-*/
-        canvas_context.fillStyle = 'rgba(' + PARTICLE_RGB_STR + ',' + b.alpha + ')';
+    particles.forEach((particle) => {
+//        canvas_context.fillStyle = `rgba(${PARTICLE_COLOR.r},${PARTICLE_COLOR.g},${PARTICLE_COLOR.b},${particle.alpha})`;
+        canvas_context.fillStyle = `rgba(${PARTICLE_RGB_STR},${particle.alpha})`;
         canvas_context.beginPath();
-        canvas_context.arc(b.x, b.y, PARTICLE_RADIUS, 0, PI_2, true);
+        canvas_context.arc(particle.x, particle.y, PARTICLE_RADIUS, 0, PI_2, true);
         canvas_context.closePath();
         canvas_context.fill();
-    }
+    });
 
-/* TODO: use other properties specific to 'mouse_particle' (+make separate function?) */
-/*
-    if (mouse_in) {
+    if (MOUSE_PARTICLE && mouse_in) {
+        // TODO: use other properties specific to 'mouse_particle' (?)
         canvas_context.fillStyle = 'rgba('+PARTICLE_COLOR.r+','+PARTICLE_COLOR.g+','+PARTICLE_COLOR.b+',1)';
         canvas_context.beginPath();
         canvas_context.arc(mouse_particle.x, mouse_particle.y, PARTICLE_RADIUS*2, 0, PI_2, true);
         canvas_context.closePath();
         canvas_context.fill();
     }
-*/
 
-    for (let i = 0; i < dead_particles.length; ++i) {
-        const particle = dead_particles[i];
-        const alpha = particle.life / PARTICLE_LIFESPAN;
-        canvas_context.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
+    dead_particles.forEach((dead_particle) => {
+        const alpha = dead_particle.life / PARTICLE_LIFESPAN;
+        canvas_context.fillStyle = `rgba(${DEAD_PARTICLE_COLOR.r},${DEAD_PARTICLE_COLOR.g},${DEAD_PARTICLE_COLOR.b},${alpha})`;
         canvas_context.beginPath();
-        canvas_context.arc(particle.x, particle.y, PARTICLE_RADIUS + (PARTICLE_LIFESPAN - particle.life), 0, PI_2);
+        canvas_context.arc(dead_particle.x, dead_particle.y, PARTICLE_RADIUS + (PARTICLE_LIFESPAN - dead_particle.life), 0, PI_2);
         canvas_context.closePath();
         canvas_context.fill();
-    }
+    });
 }
 
 function drawLines() {
@@ -229,68 +278,81 @@ function drawLines() {
     }
 }
 
-
-function process(){
+function process() {
     addParticles();
     updateParticles();
 
     canvas_context.clearRect(0, 0, canvas_width, canvas_height);
     drawParticles();
-    drawLines();
-    window.requestAnimationFrame(process);
+    if (DRAW_LINES) {
+        drawLines();
+    }
+
+    if (nb_particles + dead_particles.length > 0)  {
+        window.requestAnimationFrame(process);
+    }
 }
 
-function updateCanvas() {
-    const width = container.clientWidth;
-    canvas.setAttribute('width', width);
-    canvas_width = width; // 'parseInt'?
-    outside_right = canvas_width + PARTICLE_RADIUS;
+function initParticles(nb) {
+    particles.length = 0;
+    nb_particles = nb;
 
-    const height = container.clientHeight;
-    canvas.setAttribute('height', height);
-    canvas_height = height; // 'parseInt'?
-    outside_top = canvas_height + PARTICLE_RADIUS;
-}
-
-function initParticles(){
-    particles = [];
-    nb_particles = PARTICLE_COUNT;
-
-    for(var i = 1; i <= nb_particles; i++){
+    for (var i = 1; i <= nb; i++) {
+        // if want to spawn off screen to force random repositioning around canvas borders
+        //particles.push(newParticle(-100, -100));
         particles.push(newParticle(undefined, undefined));
     }
 }
 
 function initElements() {
-    counter.innerHTML = nb_particles;
+	counter.innerHTML = String(nb_particles).padStart(2, "0");
+
     button.style.display = "none";
+// TODO: outer/main stuff
+    //main_container.style.pointerEvents = "auto";
 }
 
-function start(){
+function updateCanvas() {
+    const width = container.clientWidth;
+    canvas.setAttribute("width", width);
+    canvas_width = width; // 'parseInt'?
+    outside_right = canvas_width + PARTICLE_RADIUS;
+
+    const height = container.clientHeight;
+    canvas.setAttribute("height", height);
+    canvas_height = height; // 'parseInt'?
+    outside_top = canvas_height + PARTICLE_RADIUS;
+}
+
+function start() {
     updateCanvas();
-    initParticles();
+    initParticles(PARTICLE_COUNT);
     initElements();
+
     window.requestAnimationFrame(process);
 }
 
 function init() {
-    window.addEventListener('load', (e) => {
+    window.addEventListener("load", () => {
         start();
     });
-    window.addEventListener('resize', (e) => {
+
+    window.addEventListener("resize", () => {
         updateCanvas();
     });
 
-    container.addEventListener('mouseenter', () => {
+    canvas.addEventListener("mouseenter", () => {
         mouse_in = true;
     });
-    container.addEventListener('mouseleave', () => {
+
+    canvas.addEventListener("mouseleave", () => {
         mouse_in = false;
     });
-    window.addEventListener('mousemove', (e) => {
-        var e = e || window.event;
-        mouse_particle.x = e.pageX;
-        mouse_particle.y = e.pageY;
+
+    canvas.addEventListener("mousemove", (e) => {
+        const event = e || window.event;
+        mouse_particle.x = event.pageX;
+        mouse_particle.y = event.pageY;
     });
 
     button.onclick = function(){
@@ -298,15 +360,19 @@ function init() {
     };
 }
 
+let canvas_width = parseInt(canvas.getAttribute("width"));
+let canvas_height = parseInt(canvas.getAttribute("height"));
+
+let outside_right = canvas_width + PARTICLE_RADIUS;
+let outside_top = canvas_height + PARTICLE_RADIUS;
 
 var nb_particles = 0;
-var particles = [];
-var dead_particles = [];
+const particles = new Array();
+const dead_particles = new Array();
 var line_particles = [];
 
-
-var mouse_in = false;
-var mouse_particle = {
+let mouse_in = false;
+let mouse_particle = {
     /* start offscreen */
     x: -FORCE_RADIUS,
     y: -FORCE_RADIUS,
@@ -314,3 +380,4 @@ var mouse_particle = {
 
 
 init();
+
