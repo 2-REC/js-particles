@@ -7,24 +7,27 @@ const canvas_context = canvas.getContext("2d");
 
 const PI_2 = Math.PI * 2;
 
+
 // TODO: make variables if editable via UI...
 // => unless find a way to reload JS by 'injecting' const values?
+const FPS = 60;
 const PARTICLE_COUNT = 3000;
 // TODO: handle different radii?
 const PARTICLE_RADIUS = 2;
 const PARTICLE_PHASE = 0.03;
 
+// speeds in pixels per second
 const PARTICLE_MIN_SPEED = 0.1; // >0!
-const PARTICLE_MAX_SPEED = 1.0;
-const PARTICLE_LIFESPAN = 10; // time of death
-
-const PARTICLES_RESPAWN = true; // dead particles reappear
+const PARTICLE_MAX_SPEED = 100;
 
 const MOUSE_FORCE = 0;
 const FORCE_RADIUS = 100;
 const FORCE_INCREASE = false;
 
 const CONTACT_RADIUS = 25;
+
+const PARTICLE_LIFESPAN = 10; // time of death
+const PARTICLES_RESPAWN = true; // dead particles reappear
 
 const MOUSE_PARTICLE = true; // draw mouse particle
 const DRAW_LINES = true;
@@ -46,6 +49,9 @@ const DEAD_PARTICLE_COLOR = {
 
 const LINE_WIDTH = 0.8;
 
+
+const TIME_STEP_SECONDS = 1 / FPS;
+const TIME_STEP = TIME_STEP_SECONDS * 1000;
 
 const SQR_FORCE_RADIUS = FORCE_RADIUS * FORCE_RADIUS;
 const SQR_CONTACT_RADIUS = CONTACT_RADIUS * CONTACT_RADIUS;
@@ -145,13 +151,13 @@ function addParticles() {
     }
 }
 
-function updateParticles() {
+function updateParticles(step) {
     line_particles.length = 0;
-// TODO: use foreach (BUT fix order issue... start from end??)
-    for (var i = particles.length-1; i >= 0; --i) {
+
+    for (let i = particles.length-1; i >= 0; --i) {
         const b = particles[i];
-        b.x += b.vx;
-        b.y += b.vy;
+        b.x += b.vx * step;
+        b.y += b.vy * step;
 
         if (isOutside(b)) {
             particles[i] = particles[particles.length - 1];
@@ -201,7 +207,7 @@ function updateParticles() {
     }
 
     /* TODO: make function? */
-    for (var i = dead_particles.length-1; i >= 0; --i) {
+    for (let i = dead_particles.length-1; i >= 0; --i) {
         const b = dead_particles[i];
         --b.life;
         if (b.life <= 0) {
@@ -250,7 +256,7 @@ function drawLines() {
     }
 
     canvas_context.lineWidth = LINE_WIDTH;
-    for (var i = 0; i < line_particles.length; i++) {
+    for (let i = 0; i < line_particles.length; i++) {
         const line_particle = line_particles[i];
         const b = line_particle[0];
         const distance = line_particle[1];
@@ -268,26 +274,64 @@ function drawLines() {
     }
 }
 
-function process() {
+function updateLogic(step) {
     addParticles();
-    updateParticles();
+    updateParticles(step);
 
+// TODO: make optional
+//    updateLogicFPS();
+}
+
+function render() {
     canvas_context.clearRect(0, 0, canvas_width, canvas_height);
+
     drawParticles();
     if (DRAW_LINES) {
         drawLines();
     }
 
-    if (nb_particles + dead_particles.length > 0)  {
-        window.requestAnimationFrame(process);
+// TODO: make optional
+//    updateDisplayFPS();
+//    showFPS();
+}
+
+function processLoop(timestamp) {
+    const deltaTime = timestamp - lastUpdateTime;
+    lastUpdateTime = timestamp;
+
+    accumulatedTime += deltaTime;
+
+    while (accumulatedTime >= TIME_STEP) {
+        updateLogic(TIME_STEP_SECONDS);
+        accumulatedTime -= TIME_STEP;
     }
+
+    // TODO: could use interpolation for smooth display...
+    //const interpolation = accumulatedTime / TIME_STEP;
+    render();
+
+    if (nb_particles + dead_particles.length > 0)  {
+        requestAnimationFrame(processLoop);
+    }
+}
+
+function updateCanvas() {
+    const width = container.clientWidth;
+    canvas.setAttribute("width", width);
+    canvas_width = width;
+    outside_right = canvas_width + PARTICLE_RADIUS;
+
+    const height = container.clientHeight;
+    canvas.setAttribute("height", height);
+    canvas_height = height;
+    outside_top = canvas_height + PARTICLE_RADIUS;
 }
 
 function initParticles(nb) {
     particles.length = 0;
     nb_particles = nb;
 
-    for (var i = 1; i <= nb; i++) {
+    for (let i = 1; i <= nb; i++) {
         // if want to spawn off screen to force random repositioning around canvas borders
         //particles.push(newParticle(-100, -100));
         particles.push(newParticle(undefined, undefined));
@@ -298,24 +342,12 @@ function initElements() {
     // TODO: html stuff
 }
 
-function updateCanvas() {
-    const width = container.clientWidth;
-    canvas.setAttribute("width", width);
-    canvas_width = width; // 'parseInt'?
-    outside_right = canvas_width + PARTICLE_RADIUS;
-
-    const height = container.clientHeight;
-    canvas.setAttribute("height", height);
-    canvas_height = height; // 'parseInt'?
-    outside_top = canvas_height + PARTICLE_RADIUS;
-}
-
 function start() {
     updateCanvas();
     initParticles(PARTICLE_COUNT);
     initElements();
 
-    window.requestAnimationFrame(process);
+    requestAnimationFrame(processLoop);
 }
 
 function init() {
@@ -349,10 +381,10 @@ let canvas_height = parseInt(canvas.getAttribute("height"));
 let outside_right = canvas_width + PARTICLE_RADIUS;
 let outside_top = canvas_height + PARTICLE_RADIUS;
 
-var nb_particles = 0;
+let nb_particles = 0;
 const particles = new Array();
 const dead_particles = new Array();
-var line_particles = [];
+let line_particles = [];
 
 let mouse_in = false;
 let mouse_particle = {
@@ -361,6 +393,8 @@ let mouse_particle = {
     y: -FORCE_RADIUS,
 };
 
+let lastUpdateTime = 0;
+let accumulatedTime = 0;
 
 init();
 
