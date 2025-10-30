@@ -150,7 +150,7 @@ function addParticles() {
 
 function updateParticles() {
     line_particles.length = 0;
-// TODO: use foreach (BUT fix order issue... start from end??)
+
     for (var i = particles.length-1; i >= 0; --i) {
         const b = particles[i];
         b.x += b.vx;
