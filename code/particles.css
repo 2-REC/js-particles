@@ -30,3 +30,19 @@ html, body {
     bottom: 5%;
     left: 5%;
 }
+
+#display_fps {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    color: white;
+    opacity: 50%;
+}
+
+#logic_fps {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    color: white;
+    opacity: 50%;
+}
