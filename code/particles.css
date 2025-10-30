@@ -1,5 +1,9 @@
+* {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
 
-body {
+html, body {
     margin: 0;
     padding: 0;
 }
@@ -25,4 +29,20 @@ body {
     position: absolute;
     bottom: 5%;
     left: 5%;
+}
+
+#display_fps {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    color: white;
+    opacity: 50%;
+}
+
+#logic_fps {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    color: white;
+    opacity: 50%;
 }

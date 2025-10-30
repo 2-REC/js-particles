@@ -2,9 +2,6 @@
 //const main_container = document.getElementById("services_foreground");
 const container = document.getElementById("container");
 const canvas = document.getElementById("particles_canvas");
-const counter = document.getElementById("particles_counter");
-const button = document.getElementById("particles_button");
-const button_display = button.style.display;
 
 const canvas_context = canvas.getContext("2d");
 
@@ -14,7 +11,7 @@ const PI_2 = Math.PI * 2;
 // TODO: make variables if editable via UI...
 // => unless find a way to reload JS by 'injecting' const values?
 const FPS = 60;
-const PARTICLE_COUNT = 4000;
+const PARTICLE_COUNT = 3000;
 // TODO: handle different radii?
 const PARTICLE_RADIUS = 2;
 const PARTICLE_PHASE = 0.03;
@@ -23,16 +20,16 @@ const PARTICLE_PHASE = 0.03;
 const PARTICLE_MIN_SPEED = 0.1; // >0!
 const PARTICLE_MAX_SPEED = 100;
 
-const MOUSE_FORCE = 100;
+const MOUSE_FORCE = 0;
 const FORCE_RADIUS = 100;
 const FORCE_INCREASE = false;
 
 const CONTACT_RADIUS = 25;
 
-const PARTICLE_LIFESPAN = 5; // time of death
-const PARTICLES_RESPAWN = false; // dead particles reappear
+const PARTICLE_LIFESPAN = 10; // time of death
+const PARTICLES_RESPAWN = true; // dead particles reappear
 
-const MOUSE_PARTICLE = false; // draw mouse particle
+const MOUSE_PARTICLE = true; // draw mouse particle
 const DRAW_LINES = true;
 
 // TODO: Could be a particle variable to have changing colors
@@ -46,8 +43,8 @@ const PARTICLE_COLOR = {
 const PARTICLE_RGB_STR = `${PARTICLE_COLOR.r},${PARTICLE_COLOR.g},${PARTICLE_COLOR.b}`;
 const DEAD_PARTICLE_COLOR = {
     r: 255,
-    g: 255,
-    b: 255
+    g: 0,
+    b: 0
 };
 
 const LINE_WIDTH = 0.8;
@@ -221,14 +218,7 @@ function updateParticles(step) {
 }
 
 function drawParticles() {
-    /* TODO: move elsewhere! */
-    /* TODO: remove hardcoded '2' => get nb digits at init */
-    counter.innerHTML = String(nb_particles).padStart(2, "0");
-
     if (nb_particles == 0) {
-        button.style.display = button_display;
-// TODO: handle outer container/events stuff...
-        //main_container.style.pointerEvents = "none";
 // TODO: return?
     }
 
@@ -284,48 +274,12 @@ function drawLines() {
     }
 }
 
-
-
-////////////////
-//TODO: make small classes?
-
-// display FPS
-// TODO: rename
-const displayFPS_div = document.getElementById("display_fps");
-let lastDisplay = Date.now();
-let displayFPS = 0;
-
-function updateDisplayFPS() {
-    const now = Date.now();
-    displayFPS = Math.round(1000/(now - lastDisplay));
-    lastDisplay = now;
-}
-
-// logic FPS
-// TODO: rename
-const logicFPS_div = document.getElementById("logic_fps");
-let lastLogic = Date.now();
-let logicFPS = 0;
-
-function updateLogicFPS() {
-    const now = Date.now();
-    logicFPS = Math.round(1000/(now - lastLogic));
-    lastLogic = now;
-}
-
-function showFPS() {
-    displayFPS_div.innerHTML = displayFPS;
-    logicFPS_div.innerHTML = logicFPS;
-}
-////////////////
-
-
 function updateLogic(step) {
     addParticles();
     updateParticles(step);
 
 // TODO: make optional
-    updateLogicFPS();
+//    updateLogicFPS();
 }
 
 function render() {
@@ -337,8 +291,8 @@ function render() {
     }
 
 // TODO: make optional
-    updateDisplayFPS();
-    showFPS();
+//    updateDisplayFPS();
+//    showFPS();
 }
 
 function processLoop(timestamp) {
@@ -385,11 +339,7 @@ function initParticles(nb) {
 }
 
 function initElements() {
-	counter.innerHTML = String(nb_particles).padStart(2, "0");
-
-    button.style.display = "none";
-// TODO: outer/main stuff
-    //main_container.style.pointerEvents = "auto";
+    // TODO: html stuff
 }
 
 function start() {
@@ -423,9 +373,6 @@ function init() {
         mouse_particle.y = event.pageY;
     });
 
-    button.onclick = function(){
-        start();
-    };
 }
 
 let canvas_width = parseInt(canvas.getAttribute("width"));
