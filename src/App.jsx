@@ -1,35 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect } from 'react';
+import { initSimulation } from './simulation/particles';
+import './simulation/particles.css';
 
+/**
+ * App Component
+ * Bridge between React and JS.
+ */
 function App() {
-  const [count, setCount] = useState(0)
+    useEffect(() => {
+      // after the component has rendered the container and canvas
+      initSimulation();
+    }, []);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <div id="container">
+            <canvas id="particles_canvas"></canvas>
+            <div id="particles_counter">00</div>
+            <div id="display_fps">00</div>
+            <div id="logic_fps">00</div>
+
+            <button id="particles_button">Restart Simulation</button>
+            <div id="gui-root"></div>
+        </div>
+    );
 }
 
-export default App
+export default App;
