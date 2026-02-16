@@ -8,8 +8,11 @@ import './simulation/particles.css';
  */
 function App() {
     useEffect(() => {
-      // after the component has rendered the container and canvas
-      initSimulation();
+        const cleanup = initSimulation();
+        return () => {
+            if (cleanup)
+                cleanup();
+        };
     }, []);
 
     return (

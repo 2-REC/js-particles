@@ -6,7 +6,6 @@ export function initSimulation() {
     const canvas = document.getElementById("particles_canvas");
     const counter = document.getElementById("particles_counter");
     const button = document.getElementById("particles_button");
-    const button_display = button.style.display;
     const canvas_context = canvas.getContext("2d");
     const PI_2 = Math.PI * 2;
 
@@ -183,10 +182,9 @@ export function initSimulation() {
         /* TODO: remove hardcoded '2' => get nb digits at init */
         counter.innerHTML = String(nb_particles).padStart(2, "0");
 
-        //if (nb_particles == 0) {
-        if (nb_particles + dead_particles.length == 0) {
-            button.style.display = button_display;
-            // TODO: return?
+        if (nb_particles + dead_particles.length === 0) {
+            button.style.display = "block";
+            return;
         }
 
         particles.forEach((particle) => {
@@ -294,8 +292,8 @@ export function initSimulation() {
     function processLoop(timestamp) {
         const deltaTime = timestamp - lastUpdateTime;
         lastUpdateTime = timestamp;
-
         accumulatedTime += deltaTime;
+
         while (accumulatedTime >= TIME_STEP) {
             updateLogic(TIME_STEP_SECONDS);
             accumulatedTime -= TIME_STEP;
@@ -306,7 +304,9 @@ export function initSimulation() {
         render();
 
         if (nb_particles + dead_particles.length > 0) {
-            requestAnimationFrame(processLoop);
+            frameId = requestAnimationFrame(processLoop);
+        } else {
+            button.style.display = "block";
         }
     }
 
@@ -342,18 +342,23 @@ export function initSimulation() {
         initParticles(PARTICLE_COUNT);
         initElements();
 
-        requestAnimationFrame(processLoop);
+        frameId = requestAnimationFrame(processLoop);
     }
 
-    // listeners
-    window.addEventListener("resize", updateCanvas);
-    canvas.addEventListener("mouseenter", () => { mouse_in = true; });
-    canvas.addEventListener("mouseleave", () => { mouse_in = false; });
-    canvas.addEventListener("mousemove", (e) => {
+    const handleResize = () => updateCanvas();
+    const handleMouseEnter = () => { mouse_in = true; };
+    const handleMouseLeave = () => { mouse_in = false; };
+    const handleMouseMove = (e) => {
         const event = e || window.event;
         mouse_particle.x = event.pageX;
         mouse_particle.y = event.pageY;
-    });
+    };
+
+    // listeners
+    window.addEventListener("resize", handleResize);
+    canvas.addEventListener("mouseenter", handleMouseEnter);
+    canvas.addEventListener("mouseleave", handleMouseLeave);
+    canvas.addEventListener("mousemove", handleMouseMove);
     button.onclick = start;
 
     // initializations
@@ -370,5 +375,18 @@ export function initSimulation() {
     let lastUpdateTime = 0;
     let accumulatedTime = 0;
 
+    let frameId;
+
     start();
+
+    // TODO: make function!
+    return () => {
+        cancelAnimationFrame(frameId);
+
+        window.removeEventListener("resize", handleResize);
+        canvas.removeEventListener("mouseenter", handleMouseEnter);
+        canvas.removeEventListener("mouseleave", handleMouseLeave);
+        canvas.removeEventListener("mousemove", handleMouseMove);
+        button.onclick = null;
+    };
 }
