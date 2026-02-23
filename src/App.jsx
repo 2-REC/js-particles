@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { initSimulation } from './simulation/particles';
+import { simulationBridge } from './simulation/simulationBridge';
 import './simulation/particles.css';
 
 /**
@@ -11,28 +12,32 @@ function App() {
         // example with init values
         //const simulation = initSimulation({ PARTICLE_COUNT: 500 });
         const simulation = initSimulation();
+        simulationBridge.register(simulation);
 
         // example to update params during session
         /*
         const timer = setTimeout(() => {
-            simulation.updateParams({
+            simulationBridge.update({
                 PARTICLE_COUNT: 100,
                 FORCE_RADIUS: 1000
             });
         }, 3000);
         */
 
-        return () => simulation.cleanup();
+        return () => {
+            simulationBridge.dispose();
+        }
     }, [ ]);
 
     return (
         <div id="container">
             <canvas id="particles_canvas"></canvas>
+
             <div id="particles_counter">00</div>
             <div id="display_fps">00</div>
             <div id="logic_fps">00</div>
 
-            <button id="particles_button">Restart Simulation</button>
+            <button id="particles_button" style={{ display: 'none' }}>Restart Simulation</button>
             <div id="gui-root"></div>
         </div>
     );
