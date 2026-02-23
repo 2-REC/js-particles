@@ -8,12 +8,22 @@ import './simulation/particles.css';
  */
 function App() {
     useEffect(() => {
-        const cleanup = initSimulation();
-        return () => {
-            if (cleanup)
-                cleanup();
-        };
-    }, []);
+        // example with init values
+        //const simulation = initSimulation({ PARTICLE_COUNT: 500 });
+        const simulation = initSimulation();
+
+        // example to update params during session
+        /*
+        const timer = setTimeout(() => {
+            simulation.updateParams({
+                PARTICLE_COUNT: 100,
+                FORCE_RADIUS: 1000
+            });
+        }, 3000);
+        */
+
+        return () => simulation.cleanup();
+    }, [ ]);
 
     return (
         <div id="container">
