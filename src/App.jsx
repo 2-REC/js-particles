@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { initSimulation } from './simulation/particles';
 import { simulationBridge } from './simulation/simulationBridge';
+import { useSimulationParameters } from './context/SimulationContext';
 import './simulation/particles.css';
 
 /**
@@ -8,10 +9,10 @@ import './simulation/particles.css';
  * Bridge between React and JS.
  */
 function App() {
+    const { parameters } = useSimulationParameters();
+
     useEffect(() => {
-        // example with init values
-        //const simulation = initSimulation({ PARTICLE_COUNT: 500 });
-        const simulation = initSimulation();
+        const simulation = initSimulation(parameters);
         simulationBridge.register(simulation);
 
         // example to update params during session
