@@ -3,9 +3,7 @@ import { initSimulation } from './simulation/particles';
 import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
 import GuiPanel from './components/GuiPanel';
-import SliderInput from './components/SliderInput';
-import ToggleSwitch from './components/ToggleSwitch';
-import ColorPicker from './components/ColorPicker';
+import ParameterList from './components/ParameterList';
 import './simulation/particles.css';
 
 /**
@@ -55,59 +53,9 @@ function App() {
 
             <div id="gui-root">
                 <GuiPanel>
-                    <SliderInput
-                        label="Particle Count"
-                        min={ 1 }
-                        max={ 10000 }
-                        step={ 1 }
-                        value={ parameters.PARTICLE_COUNT }
-                        onChange={ (val) => handleParamChange('PARTICLE_COUNT', val) }
-                        type="int"
-                    />
-                    <SliderInput
-                        label="Particle Radius"
-                        min={ 1 }
-                        max={ 100 }
-                        step={ 0.1 }
-                        value={ parameters.PARTICLE_RADIUS }
-                        onChange={ (val) => handleParamChange('PARTICLE_RADIUS', val) }
-                        type="float"
-                    />
-                    <SliderInput
-                        label="Force Radius"
-                        min={ 0 }
-                        max={ 10000 }
-                        step={ 10 }
-                        value={ parameters.FORCE_RADIUS }
-                        onChange={ (val) => handleParamChange('FORCE_RADIUS', val) }
-                        type="float"
-                    />
-                    <ToggleSwitch
-                        label="Draw Lines"
-                        value={ parameters.DRAW_LINES }
-                        onChange={ (val) => handleParamChange('DRAW_LINES', val) }
-                    />
-                    <ToggleSwitch
-                        label="Respawn Particles"
-                        value={ parameters.PARTICLES_RESPAWN }
-                        onChange={ (val) => handleParamChange('PARTICLES_RESPAWN', val) }
-                        trueLabel="Yes"
-                        falseLabel="No"
-                    />
-                    <ToggleSwitch
-                        label="Mouse Force Increase"
-                        value={ parameters.FORCE_INCREASE }
-                        onChange={ (val) => handleParamChange('FORCE_INCREASE', val) }
-                    />
-                    <ColorPicker
-                        label="Particle Color"
-                        value={ parameters.PARTICLE_COLOR }
-                        onChange={ (val) => handleParamChange('PARTICLE_COLOR', val) }
-                    />
-                    <ColorPicker
-                        label="Background Color"
-                        value={ parameters.BACKGROUND_COLOR }
-                        onChange={ (val) => handleParamChange('BACKGROUND_COLOR', val) }
+                    <ParameterList
+                        parameters={ parameters }
+                        onParamChange={ handleParamChange }
                     />
                 </GuiPanel>
             </div>
