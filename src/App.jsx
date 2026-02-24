@@ -4,6 +4,7 @@ import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
 import GuiPanel from './components/GuiPanel';
 import SliderInput from './components/SliderInput';
+import ToggleSwitch from './components/ToggleSwitch'; // New Import
 import './simulation/particles.css';
 
 /**
@@ -50,6 +51,7 @@ function App() {
             <div id="logic_fps">00</div>
 
             <button id="particles_button" style={{ display: 'none' }}>Restart Simulation</button>
+
             <div id="gui-root">
                 <GuiPanel>
                     <SliderInput
@@ -70,7 +72,6 @@ function App() {
                         onChange={ (val) => handleParamChange('PARTICLE_RADIUS', val) }
                         type="float"
                     />
-
                     <SliderInput
                         label="Force Radius"
                         min={ 0 }
@@ -79,6 +80,23 @@ function App() {
                         value={ parameters.FORCE_RADIUS }
                         onChange={ (val) => handleParamChange('FORCE_RADIUS', val) }
                         type="float"
+                    />
+                    <ToggleSwitch
+                        label="Draw Lines"
+                        value={ parameters.DRAW_LINES }
+                        onChange={ (val) => handleParamChange('DRAW_LINES', val) }
+                    />
+                    <ToggleSwitch
+                        label="Respawn Particles"
+                        value={ parameters.PARTICLES_RESPAWN }
+                        onChange={ (val) => handleParamChange('PARTICLES_RESPAWN', val) }
+                        trueLabel="Yes"
+                        falseLabel="No"
+                    />
+                    <ToggleSwitch
+                        label="Mouse Force Increase"
+                        value={ parameters.FORCE_INCREASE }
+                        onChange={ (val) => handleParamChange('FORCE_INCREASE', val) }
                     />
                 </GuiPanel>
             </div>
