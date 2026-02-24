@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { initSimulation } from './simulation/particles';
 import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
+import GuiPanel from './components/GuiPanel';
 import './simulation/particles.css';
 
 /**
@@ -39,7 +40,13 @@ function App() {
             <div id="logic_fps">00</div>
 
             <button id="particles_button" style={{ display: 'none' }}>Restart Simulation</button>
-            <div id="gui-root"></div>
+            <div id="gui-root">
+                <GuiPanel>
+                    <p style={{ fontSize: '0.8em', opacity: 0.7 }}>
+                        GUI Panel initialized. Drag the header to move.
+                    </p>
+                </GuiPanel>
+            </div>
         </div>
     );
 }
