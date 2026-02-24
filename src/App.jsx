@@ -4,7 +4,8 @@ import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
 import GuiPanel from './components/GuiPanel';
 import SliderInput from './components/SliderInput';
-import ToggleSwitch from './components/ToggleSwitch'; // New Import
+import ToggleSwitch from './components/ToggleSwitch';
+import ColorPicker from './components/ColorPicker';
 import './simulation/particles.css';
 
 /**
@@ -97,6 +98,16 @@ function App() {
                         label="Mouse Force Increase"
                         value={ parameters.FORCE_INCREASE }
                         onChange={ (val) => handleParamChange('FORCE_INCREASE', val) }
+                    />
+                    <ColorPicker
+                        label="Particle Color"
+                        value={ parameters.PARTICLE_COLOR }
+                        onChange={ (val) => handleParamChange('PARTICLE_COLOR', val) }
+                    />
+                    <ColorPicker
+                        label="Background Color"
+                        value={ parameters.BACKGROUND_COLOR }
+                        onChange={ (val) => handleParamChange('BACKGROUND_COLOR', val) }
                     />
                 </GuiPanel>
             </div>
