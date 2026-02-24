@@ -3,6 +3,7 @@ import { initSimulation } from './simulation/particles';
 import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
 import GuiPanel from './components/GuiPanel';
+import SliderInput from './components/SliderInput';
 import './simulation/particles.css';
 
 /**
@@ -10,7 +11,7 @@ import './simulation/particles.css';
  * Bridge between React and JS.
  */
 function App() {
-    const { parameters } = useSimulationParameters();
+    const { parameters, updateParameters, liveUpdates } = useSimulationParameters();
 
     useEffect(() => {
         const simulation = initSimulation(parameters);
@@ -31,6 +32,15 @@ function App() {
         }
     }, [ ]);
 
+    const handleParamChange = (key, value) => {
+        const update = { [key]: value };
+        updateParameters(update);
+
+        if (liveUpdates) {
+            simulationBridge.update(update);
+        }
+    };
+
     return (
         <div id="container">
             <canvas id="particles_canvas"></canvas>
@@ -42,9 +52,34 @@ function App() {
             <button id="particles_button" style={{ display: 'none' }}>Restart Simulation</button>
             <div id="gui-root">
                 <GuiPanel>
-                    <p style={{ fontSize: '0.8em', opacity: 0.7 }}>
-                        GUI Panel initialized. Drag the header to move.
-                    </p>
+                    <SliderInput
+                        label="Particle Count"
+                        min={ 1 }
+                        max={ 10000 }
+                        step={ 1 }
+                        value={ parameters.PARTICLE_COUNT }
+                        onChange={ (val) => handleParamChange('PARTICLE_COUNT', val) }
+                        type="int"
+                    />
+                    <SliderInput
+                        label="Particle Radius"
+                        min={ 1 }
+                        max={ 100 }
+                        step={ 0.1 }
+                        value={ parameters.PARTICLE_RADIUS }
+                        onChange={ (val) => handleParamChange('PARTICLE_RADIUS', val) }
+                        type="float"
+                    />
+
+                    <SliderInput
+                        label="Force Radius"
+                        min={ 0 }
+                        max={ 10000 }
+                        step={ 10 }
+                        value={ parameters.FORCE_RADIUS }
+                        onChange={ (val) => handleParamChange('FORCE_RADIUS', val) }
+                        type="float"
+                    />
                 </GuiPanel>
             </div>
         </div>
