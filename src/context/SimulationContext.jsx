@@ -29,6 +29,7 @@ const SimulationContext = createContext();
  */
 export const SimulationProvider = ({ children }) => {
     const [parameters, setParameters] = useState(DEFAULT_PARAMETERS);
+    const [liveUpdates, setLiveUpdates] = useState(true);
 
     const updateParameters = (newParams) => {
         setParameters((prev) => ({
@@ -37,8 +38,17 @@ export const SimulationProvider = ({ children }) => {
         }));
     };
 
+    const toggleLiveUpdates = () => {
+        setLiveUpdates((prev) => !prev);
+    };
+
     return (
-        <SimulationContext.Provider value={{ parameters, updateParameters }}>
+        <SimulationContext.Provider value={{
+            parameters,
+            updateParameters,
+            liveUpdates,
+            toggleLiveUpdates
+        }}>
             { children }
         </SimulationContext.Provider>
     );

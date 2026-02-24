@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import BottomBar from './BottomBar';
 import './GuiPanel.css';
 
 /**
@@ -14,7 +15,7 @@ const GuiPanel = ({ children }) => {
 
     const handleMouseDown = (e) => {
         // tag name automatically set by JSX (corresponds to element type in upper case)
-        if (e.target.tagName === 'BUTTON')
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT')
             return;
 
         dragOffset.current = {
@@ -86,8 +87,7 @@ const GuiPanel = ({ children }) => {
             <div className="gui-panel-content">
                 { children }
             </div>
-            <div className="gui-panel-footer">
-            </div>
+            <BottomBar />
         </div>
     );
 };
