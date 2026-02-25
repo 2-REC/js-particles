@@ -397,7 +397,7 @@ export function initSimulation(initialConfig = {}) {
     window.addEventListener("resize", handleResize);
     canvas.addEventListener("mouseenter", handleMouseEnter);
     canvas.addEventListener("mouseleave", handleMouseLeave);
-    canvas.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
     button.onclick = start;
 
     syncDerivedValues();
@@ -444,7 +444,7 @@ export function initSimulation(initialConfig = {}) {
             window.removeEventListener("resize", handleResize);
             canvas.removeEventListener("mouseenter", handleMouseEnter);
             canvas.removeEventListener("mouseleave", handleMouseLeave);
-            canvas.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mousemove", handleMouseMove);
             button.onclick = null;
         }
     };
