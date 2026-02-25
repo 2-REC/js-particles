@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { initSimulation } from './simulation/particles';
 import { simulationBridge } from './simulation/simulationBridge';
 import { useSimulationParameters } from './context/SimulationContext';
+import { applyParameterConstraints } from './utils/parameterValidation';
 import GuiPanel from './components/GuiPanel';
 import ParameterList from './components/ParameterList';
 import './simulation/particles.css';
@@ -17,23 +18,14 @@ function App() {
         const simulation = initSimulation(parameters);
         simulationBridge.register(simulation);
 
-        // example to update params during session
-        /*
-        const timer = setTimeout(() => {
-            simulationBridge.update({
-                PARTICLE_COUNT: 100,
-                FORCE_RADIUS: 1000
-            });
-        }, 3000);
-        */
-
         return () => {
             simulationBridge.dispose();
-        }
+        };
     }, [ ]);
 
     const handleParamChange = (key, value) => {
-        const update = { [key]: value };
+        const update = applyParameterConstraints(key, value, parameters);
+
         updateParameters(update);
 
         if (liveUpdates) {

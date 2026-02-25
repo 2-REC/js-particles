@@ -10,25 +10,36 @@ export function initSimulation(initialConfig = {}) {
     const canvas_context = canvas.getContext("2d");
     const PI_2 = Math.PI * 2;
 
+    // usage: cosTable[angle % 360]
+    const cosTable = new Float32Array(360);
+    for (let i = 0; i < 360; i++) {
+        cosTable[i] = Math.cos(i * Math.PI / 180);
+    }
+    // usage: sinTable[angle % 360]
+    const sinTable = new Float32Array(360);
+    for (let i = 0; i < 360; i++) {
+        sinTable[i] = Math.sin(i * Math.PI / 180);
+    }
+
     let config = {
-        FPS: initialConfig.FPS || 60,
-        PARTICLE_COUNT: initialConfig.PARTICLE_COUNT || 3000,
-        PARTICLE_RADIUS: initialConfig.PARTICLE_RADIUS || 2,
-        PARTICLE_PHASE: initialConfig.PARTICLE_PHASE || 0.03,
-        PARTICLE_MIN_SPEED: initialConfig.PARTICLE_MIN_SPEED || 0.1,
-        PARTICLE_MAX_SPEED: initialConfig.PARTICLE_MAX_SPEED || 100,
-        MOUSE_FORCE: initialConfig.MOUSE_FORCE || 100,
-        FORCE_RADIUS: initialConfig.FORCE_RADIUS || 100,
-        FORCE_INCREASE: initialConfig.FORCE_INCREASE || false,
-        CONTACT_RADIUS: initialConfig.CONTACT_RADIUS || 25,
-        PARTICLE_LIFESPAN: initialConfig.PARTICLE_LIFESPAN || 5,
+        FPS: initialConfig.FPS ?? 60,
+        PARTICLE_COUNT: initialConfig.PARTICLE_COUNT ?? 3000,
+        PARTICLE_RADIUS: initialConfig.PARTICLE_RADIUS ?? 2,
+        PARTICLE_PHASE: initialConfig.PARTICLE_PHASE ?? 0.03,
+        PARTICLE_MIN_SPEED: initialConfig.PARTICLE_MIN_SPEED ?? 0.1,
+        PARTICLE_MAX_SPEED: initialConfig.PARTICLE_MAX_SPEED ?? 100,
+        MOUSE_FORCE: initialConfig.MOUSE_FORCE ?? 100,
+        FORCE_RADIUS: initialConfig.FORCE_RADIUS ?? 100,
+        FORCE_INCREASE: initialConfig.FORCE_INCREASE ?? false,
+        CONTACT_RADIUS: initialConfig.CONTACT_RADIUS ?? 25,
+        PARTICLE_LIFESPAN: initialConfig.PARTICLE_LIFESPAN ?? 5,
         PARTICLES_RESPAWN: initialConfig.PARTICLES_RESPAWN ?? false,
-        MOUSE_PARTICLE: initialConfig.MOUSE_PARTICLE || false,
+        MOUSE_PARTICLE: initialConfig.MOUSE_PARTICLE ?? false,
         DRAW_LINES: initialConfig.DRAW_LINES ?? true,
-        LINE_WIDTH: initialConfig.LINE_WIDTH || 0.8,
-        PARTICLE_COLOR: initialConfig.PARTICLE_COLOR || { r: 207, g: 255, b: 4 },
-        DEAD_PARTICLE_COLOR: initialConfig.DEAD_PARTICLE_COLOR || { r: 255, g: 0, b: 0 },
-        BACKGROUND_COLOR: initialConfig.BACKGROUND_COLOR || { r: 0, g: 0, b: 0 }
+        LINE_WIDTH: initialConfig.LINE_WIDTH ?? 0.8,
+        PARTICLE_COLOR: initialConfig.PARTICLE_COLOR ?? { r: 207, g: 255, b: 4 },
+        DEAD_PARTICLE_COLOR: initialConfig.DEAD_PARTICLE_COLOR ?? { r: 255, g: 0, b: 0 },
+        BACKGROUND_COLOR: initialConfig.BACKGROUND_COLOR ?? { r: 0, g: 0, b: 0 }
     };
 
     let TIME_STEP_SECONDS;
@@ -46,9 +57,13 @@ export function initSimulation(initialConfig = {}) {
         TIME_STEP = TIME_STEP_SECONDS * 1000;
         SQR_FORCE_RADIUS = config.FORCE_RADIUS * config.FORCE_RADIUS;
         SQR_CONTACT_RADIUS = config.CONTACT_RADIUS * config.CONTACT_RADIUS;
-        PARTICLE_RGB_STR = `${ config.PARTICLE_COLOR.r },${ config.PARTICLE_COLOR.g },${ config.PARTICLE_COLOR.b }`;
+        PARTICLE_RGB_STR = `${config.PARTICLE_COLOR.r},${config.PARTICLE_COLOR.g},${config.PARTICLE_COLOR.b}`;
 
         // TODO: no updates to do in sim?
+
+        if (config.PARTICLES_RESPAWN) {
+            nb_particles = config.PARTICLE_COUNT;
+        }
 
         ParticleSpeed = config.FORCE_INCREASE ? ParticleSpeedIncrease : ParticleSpeedDecrease;
 
@@ -74,11 +89,10 @@ export function initSimulation(initialConfig = {}) {
     }
 
     function getRandomSpeed() {
-        const x_sign = Math.random() < 0.5 ? -1 : 1;
-        const y_sign = Math.random() < 0.5 ? -1 : 1;
+        const angle = Math.floor(Math.random() * 360);
         return [
-            getRandomRangeNumber(config.PARTICLE_MIN_SPEED, config.PARTICLE_MAX_SPEED) * x_sign,
-            getRandomRangeNumber(config.PARTICLE_MIN_SPEED, config.PARTICLE_MAX_SPEED) * y_sign
+            getRandomRangeNumber(config.PARTICLE_MIN_SPEED, config.PARTICLE_MAX_SPEED) * cosTable[angle],
+            getRandomRangeNumber(config.PARTICLE_MIN_SPEED, config.PARTICLE_MAX_SPEED) * sinTable[angle]
         ];
     }
 
@@ -101,6 +115,7 @@ export function initSimulation(initialConfig = {}) {
         const x_position = (x === undefined) ? (Math.random() * canvas_width) : x;
         const y_position = (y === undefined) ? (Math.random() * canvas_height) : y;
         const speed = getRandomSpeed();
+
         return {
             x: x_position,
             y: y_position,
