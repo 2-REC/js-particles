@@ -1,6 +1,7 @@
 /**
  *  Core Simulation Logic
  */
+
 export function initSimulation(initialConfig = {}) {
     const container = document.getElementById("container");
     const canvas = document.getElementById("particles_canvas");
@@ -407,11 +408,11 @@ export function initSimulation(initialConfig = {}) {
         // merge new parameters into existing config
         config = { ...config, ...newParams };
 
-        syncDerivedValues();
-
         if (config.PARTICLE_COUNT !== prevCount) {
             initParticles(config.PARTICLE_COUNT);
         }
+
+        syncDerivedValues();
 
         outside_right = canvas_width + config.PARTICLE_RADIUS;
         outside_top = canvas_height + config.PARTICLE_RADIUS;
