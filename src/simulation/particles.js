@@ -53,7 +53,8 @@ export function initSimulation(initialConfig = {}) {
         ParticleSpeed = config.FORCE_INCREASE ? ParticleSpeedIncrease : ParticleSpeedDecrease;
 
         if ( container ) {
-            container.style.backgroundColor = `rgb(${ config.BACKGROUND_COLOR.r },${ config.BACKGROUND_COLOR.g },${ config.BACKGROUND_COLOR.b })`;
+            const bg = config.BACKGROUND_COLOR;
+            container.style.backgroundColor = `rgb(${bg.r},${bg.g},${bg.b})`;
         }
     }
 
