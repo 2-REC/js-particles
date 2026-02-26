@@ -1,7 +1,14 @@
 /**
- *  Core Simulation Logic
+ * @file particles.js
+ * @description Core imperative simulation engine using HTML5 Canvas.
+ * @responsibility Manages particle physics, rendering cycles, and manual DOM updates for HUD elements.
  */
 
+/**
+ * Initializes the particle simulation.
+ * @param {Object} initialConfig - Initial parameter state from the React context.
+ * @returns {Object} Public API for controlling and cleaning up the simulation.
+ */
 export function initSimulation(initialConfig = {}) {
     const container = document.getElementById("container");
     const canvas = document.getElementById("particles_canvas");
@@ -9,17 +16,6 @@ export function initSimulation(initialConfig = {}) {
     const button = document.getElementById("particles_button");
     const canvas_context = canvas.getContext("2d");
     const PI_2 = Math.PI * 2;
-
-    // usage: cosTable[angle % 360]
-    const cosTable = new Float32Array(360);
-    for (let i = 0; i < 360; i++) {
-        cosTable[i] = Math.cos(i * Math.PI / 180);
-    }
-    // usage: sinTable[angle % 360]
-    const sinTable = new Float32Array(360);
-    for (let i = 0; i < 360; i++) {
-        sinTable[i] = Math.sin(i * Math.PI / 180);
-    }
 
     let config = {
         FPS: initialConfig.FPS ?? 60,
@@ -48,24 +44,24 @@ export function initSimulation(initialConfig = {}) {
     let SQR_CONTACT_RADIUS;
     let PARTICLE_RGB_STR;
 
-    // TODO: rename to '...Fct'?
-    let ParticleSpeed;
+    let getParticleSpeed;
 
-    /* TODO: rename to 'updateValues'? */
-    function syncDerivedValues() {
+    /**
+     * Recalculates internal constants based on current configuration.
+     * Side effect: Updates container background color style directly.
+     */
+    function updateInternalPhysicsConstants() {
         TIME_STEP_SECONDS = 1 / config.FPS;
         TIME_STEP = TIME_STEP_SECONDS * 1000;
         SQR_FORCE_RADIUS = config.FORCE_RADIUS * config.FORCE_RADIUS;
         SQR_CONTACT_RADIUS = config.CONTACT_RADIUS * config.CONTACT_RADIUS;
         PARTICLE_RGB_STR = `${config.PARTICLE_COLOR.r},${config.PARTICLE_COLOR.g},${config.PARTICLE_COLOR.b}`;
 
-        // TODO: no updates to do in sim?
-
         if (config.PARTICLES_RESPAWN) {
             nb_particles = config.PARTICLE_COUNT;
         }
 
-        ParticleSpeed = config.FORCE_INCREASE ? ParticleSpeedIncrease : ParticleSpeedDecrease;
+        getParticleSpeed = config.FORCE_INCREASE ? calculateSpeedIncrease : calculateSpeedDecrease;
 
         if ( container ) {
             const bg = config.BACKGROUND_COLOR;
@@ -73,14 +69,30 @@ export function initSimulation(initialConfig = {}) {
         }
     }
 
+    /**
+      * Cosine lookup table.
+      */
+    const cosTable = new Float32Array(360);
+    for (let i = 0; i < 360; i++) {
+        cosTable[i] = Math.cos(i * Math.PI / 180);
+    }
+
+    /**
+      * Sine lookup table.
+      */
+    const sinTable = new Float32Array(360);
+    for (let i = 0; i < 360; i++) {
+        sinTable[i] = Math.sin(i * Math.PI / 180);
+    }
+
     // closer => faster
-    function ParticleSpeedIncrease(sqr_distance) {
+    function calculateSpeedIncrease(sqr_distance) {
         // +0.1 to avoid standing still when at full distance
         return Math.sqrt((SQR_FORCE_RADIUS - sqr_distance)) / config.FORCE_RADIUS + 0.1;
     }
 
     // further => faster
-    function ParticleSpeedDecrease(sqr_distance) {
+    function calculateSpeedDecrease(sqr_distance) {
         return Math.sqrt(sqr_distance) / config.FORCE_RADIUS;
     }
 
@@ -181,7 +193,7 @@ export function initSimulation(initialConfig = {}) {
                     dead_particles.push(b);
                 } else if (sqr_distance < SQR_FORCE_RADIUS) {
                     if (config.MOUSE_FORCE) {
-                        const speed = ParticleSpeed(sqr_distance);
+                        const speed = getParticleSpeed(sqr_distance);
                         const deltaX = mouse_particle.x - b.x;
                         const deltaY = mouse_particle.y - b.y;
                         const magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -214,18 +226,6 @@ export function initSimulation(initialConfig = {}) {
     }
 
     function drawParticles() {
-        /* TODO: move elsewhere! */
-        /* TODO: remove hardcoded '2' => get nb digits at init */
-        counter.innerHTML = String(nb_particles).padStart(2, "0");
-
-        // TODO: not needed?
-        /*
-        if (nb_particles + dead_particles.length === 0) {
-            button.style.display = "block";
-            return;
-        }
-        */
-
         particles.forEach((particle) => {
             canvas_context.fillStyle = `rgba(${PARTICLE_RGB_STR},${particle.alpha})`;
             canvas_context.beginPath();
@@ -273,11 +273,7 @@ export function initSimulation(initialConfig = {}) {
         }
     }
 
-    ////////////////
-    // TODO: make small classes
-    // TODO: keep both FPS counters?
     // display FPS
-    // TODO: rename
     const displayFPS_div = document.getElementById("display_fps");
     let lastDisplay = Date.now();
     let displayFPS = 0;
@@ -289,7 +285,6 @@ export function initSimulation(initialConfig = {}) {
     }
 
     // logic FPS
-    // TODO: rename
     const logicFPS_div = document.getElementById("logic_fps");
     let lastLogic = Date.now();
     let logicFPS = 0;
@@ -304,7 +299,6 @@ export function initSimulation(initialConfig = {}) {
         displayFPS_div.innerHTML = displayFPS;
         logicFPS_div.innerHTML = logicFPS;
     }
-    ////////////////
 
     function updateLogic(step) {
         addParticles();
@@ -319,6 +313,8 @@ export function initSimulation(initialConfig = {}) {
 
         drawParticles();
         drawLines();
+
+        counter.innerHTML = String(nb_particles);
 
         // TODO: make optional
         updateDisplayFPS();
@@ -335,8 +331,6 @@ export function initSimulation(initialConfig = {}) {
             accumulatedTime -= TIME_STEP;
         }
 
-        // TODO: should use interpolation for smooth display
-        //const interpolation = accumulatedTime / TIME_STEP;
         render();
 
         if (nb_particles + dead_particles.length > 0) {
@@ -362,19 +356,17 @@ export function initSimulation(initialConfig = {}) {
         particles.length = 0;
         nb_particles = nb;
         for (let i = 0; i < nb; i++) {
-            // if want to spawn off screen to force random repositioning around canvas borders
-            //particles.push(newParticle(-100, -100));
             particles.push(newParticle(undefined, undefined));
         }
     }
 
     function initElements() {
-        // TODO: not needed?
-        //counter.innerHTML = String(nb_particles).padStart(2, "0");
         button.style.display = "none";
     }
 
     function start() {
+        updateInternalPhysicsConstants();
+
         updateCanvas();
         initParticles(config.PARTICLE_COUNT);
         initElements();
@@ -382,13 +374,31 @@ export function initSimulation(initialConfig = {}) {
         frameId = requestAnimationFrame(processLoop);
     }
 
+    /**
+     * API exposed to the React Bridge for real-time control.
+     * @param {Object} newParams - Partial or full parameter updates.
+     */
+    const updateParams = (newParams) => {
+        const prevCount = config.PARTICLE_COUNT;
+
+        // merge new parameters into existing config
+        config = { ...config, ...newParams };
+
+        if (config.PARTICLE_COUNT !== prevCount) {
+            initParticles(config.PARTICLE_COUNT);
+        }
+
+        updateInternalPhysicsConstants();
+
+        outside_right = canvas_width + config.PARTICLE_RADIUS;
+        outside_top = canvas_height + config.PARTICLE_RADIUS;
+    };
+
     // event Handlers
     const handleResize = () => updateCanvas();
     const handleMouseEnter = () => { mouse_in = true; };
     const handleMouseLeave = () => { mouse_in = false; };
     const handleMouseMove = (e) => {
-        // TODO: not needed? (and use 'event' const in following instructions)
-        //const event = e || window.event;
         mouse_particle.x = e.pageX;
         mouse_particle.y = e.pageY;
     };
@@ -399,8 +409,6 @@ export function initSimulation(initialConfig = {}) {
     canvas.addEventListener("mouseleave", handleMouseLeave);
     window.addEventListener("mousemove", handleMouseMove);
     button.onclick = start;
-
-    syncDerivedValues();
 
     // initializations
     let canvas_width = 0;
@@ -416,23 +424,6 @@ export function initSimulation(initialConfig = {}) {
     let lastUpdateTime = 0;
     let accumulatedTime = 0;
     let frameId;
-
-    // function React GUI will call
-    const updateParams = (newParams) => {
-        const prevCount = config.PARTICLE_COUNT;
-
-        // merge new parameters into existing config
-        config = { ...config, ...newParams };
-
-        if (config.PARTICLE_COUNT !== prevCount) {
-            initParticles(config.PARTICLE_COUNT);
-        }
-
-        syncDerivedValues();
-
-        outside_right = canvas_width + config.PARTICLE_RADIUS;
-        outside_top = canvas_height + config.PARTICLE_RADIUS;
-    };
 
     start();
 

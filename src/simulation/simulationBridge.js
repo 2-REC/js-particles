@@ -1,12 +1,21 @@
 /**
- * Simulation Bridge
- *
- * Communication layer between React GUI and JavaScript particle simulation engine.
+ * @file simulationBridge.js
+ * @description Communication layer between React state management and the vanilla JS simulation engine.
+ * @responsibility Sanitizes UI inputs and manages the lifecycle of the simulation registration.
  */
 
+/** @type {Object|null} Internal reference to the registered simulation API */
 let activeSimulation = null;
 
+/**
+ * Singleton bridge object facilitating data flow from React to the Canvas engine.
+ */
 export const simulationBridge = {
+
+    /**
+     * Registers a simulation instance to the bridge.
+     * @param {Object} api - The engine's exposed API (must contain updateParams and cleanup).
+     */
     register(api) {
         if (api && typeof api.updateParams === 'function') {
             activeSimulation = api;
@@ -16,6 +25,10 @@ export const simulationBridge = {
         }
     },
 
+    /**
+     * Sanitizes and pushes parameter updates to the active simulation.
+     * @param {Object} params - The updated parameter set from React state.
+     */
     update(params) {
         if (!activeSimulation) {
             console.warn("Simulation Bridge: No active simulation to update.");
@@ -23,8 +36,6 @@ export const simulationBridge = {
         }
 
         const sanitizedParams = { ...params };
-
-        /* TODO: add more checks? */
 
         const colorKeys = ["PARTICLE_COLOR", "DEAD_PARTICLE_COLOR", "BACKGROUND_COLOR"];
         colorKeys.forEach(key => {
@@ -41,6 +52,9 @@ export const simulationBridge = {
         activeSimulation.updateParams(sanitizedParams);
     },
 
+    /**
+     * Cleans up simulation resources and removes the active reference.
+     */
     dispose() {
         if (activeSimulation && typeof activeSimulation.cleanup === 'function') {
             activeSimulation.cleanup();

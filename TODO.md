@@ -13,3 +13,6 @@
     - [ ] Uniformize
     - [ ] Make global what can
     - [ ] Use CSS variables
+- [ ] Rendering: use interpolation for smooth display (`interpolation = accumulatedTime / TIME_STEP`)
+- [ ] Optimize `UpdateParticles` function (see comments)
+- [ ] Fix "inifinity" FPS bug
