@@ -4,6 +4,7 @@
  * @responsibility Manages a draggable, collapsible container that houses all
  * parameter controls and responds to global keyboard shortcuts.
  */
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import BottomBar from './BottomBar';

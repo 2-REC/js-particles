@@ -3,6 +3,7 @@
  * @description Central React Context for simulation parameter management.
  * @responsibility Stores global parameters, provides an immutable update interface, and manages the Live Update toggle state.
  */
+'use client';
 
 import React, { createContext, useState, useContext } from 'react';
 
