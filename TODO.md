@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] Make mobile friendly! (cursor not responding well, cannot drag panel, etc.)
+
 - [ ] Input fields: only update simulation parameter value when finished editing (ENTER)
 - [ ] FPS parameter seems ignored. To check.
 - [ ] Add throttle to color changes to avoid heavy updates.
