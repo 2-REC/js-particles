@@ -1,11 +1,20 @@
 /**
- * Parameter Configuration Metadata
+ * @file parameterConfig.js
+ * @description Metadata configuration for simulation parameters.
+ * @responsibility Defines the UI representation (labels, ranges, types) for every parameter in the system.
  */
 
+/**
+ * Registry of simulation parameters.
+ * Used by ParameterList to dynamically render Slider, Toggle, or ColorPicker components.
+ *
+ * Values and ranges are derived from the project's parameters.txt.
+ * @type {Array<Object>}
+ */
 export const PARAMETER_CONFIG = [
     { key: "FPS", label: "FPS", type: "int", min: 1, max: 120, step: 1 },
     { key: "PARTICLE_COUNT", label: "Particle Count", type: "int", min: 1, max: 10000, step: 1 },
-    { key: "PARTICLE_RADIUS", label: "Particle Radius", type: "int", min: 1, max: 1000, step: 1 },
+    { key: "PARTICLE_RADIUS", label: "Particle Radius", type: "float", min: 0.5, max: 1000, step: 0.5 },
     { key: "PARTICLE_PHASE", label: "Particle Phase", type: "float", min: 0.0, max: 3.14, step: 0.01 },
     { key: "PARTICLE_MIN_SPEED", label: "Min Speed", type: "float", min: 0.1, max: 1000, step: 0.1 },
     { key: "PARTICLE_MAX_SPEED", label: "Max Speed", type: "float", min: 0.1, max: 1000, step: 0.1 },

@@ -1,5 +1,15 @@
+/**
+ * @file SimulationContext.jsx
+ * @description Central React Context for simulation parameter management.
+ * @responsibility Stores global parameters, provides an immutable update interface, and manages the Live Update toggle state.
+ */
+
 import React, { createContext, useState, useContext } from 'react';
 
+/**
+ * Initial parameter values strictly following parameters.txt specifications.
+ * @type {Object}
+ */
 const DEFAULT_PARAMETERS = {
     FPS: 60,
     PARTICLE_COUNT: 3000,
@@ -25,12 +35,20 @@ const SimulationContext = createContext();
 
 /**
  * SimulationProvider
- * Manages global state for all simulation parameters.
+ * Wraps the application to provide access to simulation state.
+ *
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components to be wrapped.
+ * @returns {JSX.Element} The context provider.
  */
 export const SimulationProvider = ({ children }) => {
     const [parameters, setParameters] = useState(DEFAULT_PARAMETERS);
     const [liveUpdates, setLiveUpdates] = useState(true);
 
+    /**
+     * Updates specific parameters in the state using an immutable pattern.
+     * @param {Object} newParams - Key-value pairs of parameters to update.
+     */
     const updateParameters = (newParams) => {
         setParameters((prev) => ({
             ...prev,
@@ -38,6 +56,9 @@ export const SimulationProvider = ({ children }) => {
         }));
     };
 
+    /**
+     * Toggles the global Live Update state.
+     */
     const toggleLiveUpdates = () => {
         setLiveUpdates((prev) => !prev);
     };
@@ -55,7 +76,9 @@ export const SimulationProvider = ({ children }) => {
 };
 
 /**
- * Custom hook for easy access to simulation state
+ * Custom hook for accessing simulation parameters and update logic.
+ * @throws {Error} If used outside of a SimulationProvider.
+ * @returns {Object} The context value.
  */
 export const useSimulationParameters = () => {
     const context = useContext(SimulationContext);

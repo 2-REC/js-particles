@@ -1,7 +1,17 @@
 /**
- * Parameter Validation Utility
+ * @file parameterValidation.js
+ * @description Logic for enforcing simulation parameter consistency.
+ * @responsibility Intercepts UI updates to ensure dependent parameters (like Min/Max speeds) stay synchronized.
  */
 
+/**
+ * Enforces logical constraints between parameters during the update process.
+ *
+ * @param {string} key - The identifier of the parameter being changed.
+ * @param {any} value - The new value intended for the parameter.
+ * @param {Object} currentParams - The current state of all parameters.
+ * @returns {Object} An update object containing one or more validated parameter changes.
+ */
 export const applyParameterConstraints = (key, value, currentParams) => {
     let update = { [key]: value };
 

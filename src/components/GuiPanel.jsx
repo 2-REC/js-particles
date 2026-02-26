@@ -1,22 +1,41 @@
+/**
+ * @file GuiPanel.jsx
+ * @description The primary UI shell for the particle simulation controls.
+ * @responsibility Manages a draggable, collapsible container that houses all
+ * parameter controls and responds to global keyboard shortcuts.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import BottomBar from './BottomBar';
 import './GuiPanel.css';
 
 /**
- * GuiPanel
- * Draggable container holding GUI controls.
+ * GuiPanel Component
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - The ParameterList or other control components.
+ * @returns {JSX.Element|null} The panel UI or null if hidden.
  */
 const GuiPanel = ({ children }) => {
     const [ isVisible, setIsVisible ] = useState(true);
     const [ position, setPosition ] = useState({ x: 100, y: 100 });
     const [ isDragging, setIsDragging ] = useState(false);
 
+    /**
+     * useRef is used for the drag offset to avoid re-renders during calculation.
+     * It stores the distance between the mouse and the panel's top-left corner.
+     */
     const dragOffset = useRef({ x: 0, y: 0 });
 
+    /**
+     * Initiates the dragging sequence.
+     * Filters out clicks on buttons or inputs to prevent interaction conflicts.
+     */
     const handleMouseDown = (e) => {
         // tag name automatically set by JSX (corresponds to element type in upper case)
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT')
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
             return;
+        }
 
         dragOffset.current = {
             x: e.clientX - position.x,
@@ -25,6 +44,10 @@ const GuiPanel = ({ children }) => {
         setIsDragging(true);
     };
 
+    /**
+     * Effect Hook: Manages global window-level listeners for dragging and visibility.
+     * Dependencies on [ isDragging ] ensure listeners are attached only when active.
+     */
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isDragging)
@@ -80,8 +103,9 @@ const GuiPanel = ({ children }) => {
                     className="gui-panel-close-btn"
                     onClick={ () => setIsVisible(false) }
                     title="Close Panel (ESC)"
+                    type="button"
                 >
-                    &times;
+                    ×
                 </button>
             </div>
             <div className="gui-panel-content">

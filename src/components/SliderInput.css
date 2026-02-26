@@ -49,8 +49,7 @@
     border-color: #4CAF50;
 }
 
-/* TODO: check */
-/* remove arrows from number input for cleaner look */
+/* Standardizing numeric input appearance across browsers */
 .slider-input-number::-webkit-inner-spin-button,
 .slider-input-number::-webkit-outer-spin-button {
     -webkit-appearance: none;
