@@ -6,15 +6,17 @@
 html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 #container {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
-
-    background-color: black;
 }
 
 #particles_counter {
@@ -23,12 +25,15 @@ html, body {
     left: 5%;
     color: white;
     opacity: 50%;
+    pointer-events: none;
+    font-family: monospace;
 }
 
 #particles_button {
     position: absolute;
     bottom: 5%;
     left: 5%;
+    z-index: 10;
 }
 
 #display_fps {
@@ -37,6 +42,7 @@ html, body {
     left: 5%;
     color: white;
     opacity: 50%;
+    font-family: monospace;
 }
 
 #logic_fps {
@@ -45,4 +51,5 @@ html, body {
     left: 5%;
     color: white;
     opacity: 50%;
+    font-family: monospace;
 }

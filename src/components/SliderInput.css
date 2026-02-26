@@ -1,0 +1,57 @@
+/**
+ * SliderInput Component Styles
+ */
+
+.slider-input-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.slider-input-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slider-input-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #ccc;
+}
+
+.slider-input-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.slider-input-range {
+    flex: 1;
+    cursor: pointer;
+    accent-color: #4CAF50;
+}
+
+.slider-input-number {
+    width: 65px;
+    background: #444;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: white;
+    padding: 4px 6px;
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.slider-input-number:focus {
+    outline: 1px solid #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Standardizing numeric input appearance across browsers */
+.slider-input-number::-webkit-inner-spin-button,
+.slider-input-number::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
