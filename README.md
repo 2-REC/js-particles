@@ -10,7 +10,7 @@ It is written in JavaScript and controlled through a React GUI.
 
 ## Context
 
-The project was originally created as part of my [IT portfolio website](https://2-rec.github.io/it-portfolio), to serve as an interactive background for the "About" section of the homepage.
+The project was originally created as part of my [IT portfolio website](https://2-rec.github.io/it-portfolio), to serve as an interactive background for the "Services" section of the homepage.
 As the simulation evolved and became more complex, it was moved into its own standalone repository to allow easier development, testing, and iteration.
 
 As the complexity grew, using hardcoded parameters quickly became inconvenient for experimenting different configurations.
