@@ -295,7 +295,7 @@ export function initSimulation(initialConfig = {}) {
         lastLogic = now;
     }
 
-    function showFPS() {
+    function updateFPSCounters() {
         displayFPS_div.innerHTML = displayFPS;
         logicFPS_div.innerHTML = logicFPS;
     }
@@ -304,7 +304,6 @@ export function initSimulation(initialConfig = {}) {
         addParticles();
         updateParticles(step);
 
-        // TODO: make optional
         updateLogicFPS();
     }
 
@@ -314,11 +313,14 @@ export function initSimulation(initialConfig = {}) {
         drawParticles();
         drawLines();
 
-        counter.innerHTML = String(nb_particles);
+        if (counter !== null) {
+            counter.innerHTML = String(nb_particles);
+        }
 
-        // TODO: make optional
         updateDisplayFPS();
-        showFPS();
+        if (showFPS) {
+            updateFPSCounters();
+        }
     }
 
     function processLoop(timestamp) {
@@ -424,6 +426,8 @@ export function initSimulation(initialConfig = {}) {
     let lastUpdateTime = 0;
     let accumulatedTime = 0;
     let frameId;
+
+    const showFPS = !(displayFPS_div === null || logicFPS_div === null);
 
     start();
 
